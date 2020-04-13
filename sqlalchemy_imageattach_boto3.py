@@ -1,5 +1,8 @@
 import io
-from typing import Optional, Union
+try:
+    from typing import Optional, Union
+except ImportError:
+    pass
 
 from boto3 import client
 from sqlalchemy_imageattach.store import Store
