@@ -1,5 +1,8 @@
 import io
-from typing import Optional, Union
+try:
+    from typing import Optional, Union
+except ImportError:
+    pass
 
 from boto3 import client
 from sqlalchemy_imageattach.store import Store
@@ -54,9 +57,15 @@ class Boto3S3Store(Store):
     ):
         # type: (...) -> str
         extension = guess_extension(mimetype)
-        key = f'{object_type}/{object_id}/{width}x{height}{extension}'
+        key = '{}/{}/{}x{}{}'.format(
+            object_type,
+            object_id,
+            width,
+            height,
+            extension,
+        )
         if self.prefix:
-            return f'{self.prefix}/{key}'
+            return '{}/{}'.format(self.prefix, key)
         return key
 
     def upload_file(
@@ -71,7 +80,7 @@ class Boto3S3Store(Store):
             ACL=acl,
             Body=data,
             Bucket=self.bucket,
-            CacheControl=f'max-age={self.max_age!s}',
+            CacheControl='max-age={}'.format(self.max_age),
             ContentType=content_type,
             StorageClass='REDUCED_REDUNDANCY' if rrs else 'STANDARD',
             Key=key,
@@ -130,4 +139,4 @@ class Boto3S3Store(Store):
     ):
         # type: (...) -> str
         key = self.get_key(object_type, object_id, width, height, mimetype)
-        return f'{self.public_base_url}/{key}'
+        return '{}/{}'.format(self.public_base_url, key)
